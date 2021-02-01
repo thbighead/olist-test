@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -44,20 +45,27 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateProductRequest $request
+     * @param Product $product
+     * @return \Illuminate\Http\JsonResponse|object
      */
-    public function update(Request $request, $id)
+    public function update(UpdateProductRequest $request, Product $product)
     {
-        //
+        $oldProduct = clone $product;
+
+        $success = $product->update($request->only($product->getFillable()));
+
+        return (new ProductResource($product))->additional([
+            'success' => $success,
+            'old' => $oldProduct->toArray(),
+        ])->response()->setStatusCode($success ? 200 : 500);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param Product $product
-     * @return ProductResource|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|object
      * @throws \Exception
      */
     public function destroy(Product $product)
