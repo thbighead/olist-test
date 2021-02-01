@@ -40,12 +40,13 @@ foreach (scandir($api_versions_controllers_path) as $api_version) { // Reading A
                 continue; // skipping paths which aren't Controllers developed for this project
             }
 
-            $controller_filename = substr($controller_filename, 0, -4); // removing '.php' from filename
+            $controller_name = substr($controller_filename, 0, -4); // removing '.php' from filename
+            $controller_namespace = "\\App\\Http\\Controllers\\API\\$api_version\\$controller_name";
 
-            Route::resource(
-                Str::snake(Str::before($controller_filename, 'Controller')),
-                "\\App\\Http\\Controllers\\API\\$api_version\\$controller_filename"
-            )->only(['destroy', 'index', 'show', 'store', 'update']);
+            Route::apiResource(
+                Str::snake(Str::before($controller_name, 'Controller')),
+                $controller_namespace
+            )->only(get_class_methods($controller_namespace));
         }
     });
 }
