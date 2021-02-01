@@ -56,11 +56,17 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Product $product
+     * @return ProductResource|\Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
-    public function destroy($id)
+    public function destroy(Product $product)
     {
-        //
+        $success = (bool)$product->delete();
+
+        return (new ProductResource($product))
+            ->additional(['success' => $success])
+            ->response()
+            ->setStatusCode($success ? 200 : 500);
     }
 }
