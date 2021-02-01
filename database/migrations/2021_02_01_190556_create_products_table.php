@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateProductsTable extends Migration
 {
+    const TABLE = 'products';
+
     /**
      * Run the migrations.
      *
@@ -13,9 +15,16 @@ class CreateProductsTable extends Migration
      */
     public function up()
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create(self::TABLE, function (Blueprint $table) {
             $table->id();
+
+            $table->string('sku')->unique();
+            $table->string('name');
+            $table->longText('description');
+            $table->unsignedDecimal('price');
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -26,6 +35,6 @@ class CreateProductsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists(self::TABLE);
     }
 }
