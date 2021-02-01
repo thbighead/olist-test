@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+const API_CONTROLLERS_PATH_FROM_APP_DIRECTORY = 'Http/Controllers/API';
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +15,37 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+/*
+|--------------------------------------------------------------------------
+| Automatically loading Laravel API Rest Resource Controller's methods
+| routes.
+|--------------------------------------------------------------------------
+|
+| Please remember to use php artisan route:cache command when preparing
+| this project for non-development environments to avoid this code being
+| executed everytime a route is asked by Laravel.
+|
+*/
+$api_versions_controllers_path = app_path(API_CONTROLLERS_PATH_FROM_APP_DIRECTORY);
+
+foreach (scandir($api_versions_controllers_path) as $api_version) { // Reading API versions available
+    if (!preg_match('/^V\d+\D*/', $api_version)) {
+        continue; // skipping paths which aren't API versions folders for this project
+    }
+
+    Route::prefix(strtolower($api_version))->group(function () use ($api_version) {
+        $api_controllers_path = app_path(API_CONTROLLERS_PATH_FROM_APP_DIRECTORY . "/{$api_version}");
+        foreach (scandir($api_controllers_path) as $controller_filename) {
+            if ($controller_filename === 'Controller.php' || !Str::endsWith($controller_filename, '.php')) {
+                continue; // skipping paths which aren't Controllers developed for this project
+            }
+
+            $controller_filename = substr($controller_filename, 0, -4); // removing '.php' from filename
+
+            Route::resource(
+                Str::snake(Str::before($controller_filename, 'Controller')),
+                "\\App\\Http\\Controllers\\API\\$api_version\\$controller_filename"
+            )->only(['destroy', 'index', 'show', 'store', 'update']);
+        }
+    });
+}
