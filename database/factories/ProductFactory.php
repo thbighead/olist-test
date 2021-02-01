@@ -22,7 +22,10 @@ class ProductFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'sku' => $this->faker->unique()->bothify('???##########'),
+            'name' => ucfirst($this->faker->word),
+            'description' => $this->faker->realText(),
+            'price' => $this->faker->randomFloat(2, 5, 999),
         ];
     }
 }
