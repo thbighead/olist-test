@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -23,12 +23,19 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @param StoreProductRequest $request
+     * @return \Illuminate\Http\JsonResponse|object
      */
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        //
+        $newProduct = new Product;
+
+        $success = $newProduct->fill($request->only($newProduct->getFillable()))
+            ->save();
+
+        return (new ProductResource($newProduct))->additional([
+            'success' => $success,
+        ])->response()->setStatusCode($success ? 200 : 500);
     }
 
     /**
