@@ -36,7 +36,7 @@ class CategoryController extends Controller
 
         return (new CategoryResource($newCategory))->additional([
             'success' => $success,
-        ])->response()->setStatusCode($success ? 200 : 500);
+        ])->response()->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
     }
 
     /**
@@ -70,7 +70,7 @@ class CategoryController extends Controller
         return (new CategoryResource($category))->additional([
             'success' => $success,
             'old' => $oldCategory->toArray(),
-        ])->response()->setStatusCode($success ? 200 : 500);
+        ])->response()->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
     }
 
     /**
@@ -89,6 +89,6 @@ class CategoryController extends Controller
         return (new CategoryResource($category))
             ->additional(['success' => $success])
             ->response()
-            ->setStatusCode($success ? 200 : 500);
+            ->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
     }
 }
