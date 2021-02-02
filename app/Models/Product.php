@@ -64,6 +64,11 @@ class Product extends Model
         'price',
     ];
 
+    public function getPriceAttribute($price_value)
+    {
+        return 'R$ ' . str_replace('.', ',', $price_value);
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
