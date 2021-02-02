@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -62,6 +63,41 @@ class Product extends Model
         'description',
         'price',
     ];
+
+    /**
+     * The attributes that may be used by scopeFilter when filtering search.
+     *
+     * @var array
+     */
+    protected $filterable = [
+        'sku',
+        'name',
+        'description',
+        'price',
+    ];
+
+    public function scopeFilter(Builder $query, array $filter_fields): Builder
+    {
+        $category_field_name = 'category';
+        $category_name_column_reference = 'categories.name';
+
+        if ($filter_fields[$category_field_name] ?? null) {
+            $search_value = preg_replace('/(?<!\\\)\\\%/', '\%', $filter_fields[$category_field_name]);
+            $search_value_prepared_to_like = preg_replace('/(?<!\\\)\*+/', '%', $search_value);
+
+            $query->select('products.*')
+                ->join('categories', 'products.category_id', '=', 'categories.id');
+
+            if ($search_value !== $search_value_prepared_to_like) {
+                $query->where($category_name_column_reference, 'like', $search_value_prepared_to_like);
+                return parent::scopeFilter($query, $filter_fields);
+            }
+
+            $query->where($category_name_column_reference, $search_value);
+        }
+
+        return parent::scopeFilter($query, $filter_fields);
+    }
 
     public function getPriceAttribute($price_value)
     {
