@@ -18,7 +18,10 @@ class AddConstraintsToProductsTable extends Migration
     {
         Schema::disableForeignKeyConstraints();
         Schema::table(self::TABLE, function (Blueprint $table) {
-            $table->foreign(self::CATEGORY_ID)->references('id')->on('categories');
+            $table->foreign(self::CATEGORY_ID)
+                ->references('id')
+                ->on('categories')
+                ->onDelete('cascade');
         });
         Schema::enableForeignKeyConstraints();
     }
