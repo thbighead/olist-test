@@ -18,7 +18,12 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return ProductResource::collection(Product::with('category')->paginate(10));
+        return ProductResource::collection(
+            Product::filter(request()->query())
+                ->with(['category'])
+                ->paginate(self::ITEMS_PER_PAGE)
+                ->withQueryString()
+        );
     }
 
     /**
