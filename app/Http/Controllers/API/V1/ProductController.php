@@ -36,7 +36,7 @@ class ProductController extends Controller
 
         return (new ProductResource($newProduct))->additional([
             'success' => $success,
-        ])->response()->setStatusCode($success ? 200 : 500);
+        ])->response()->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
     }
 
     /**
@@ -70,7 +70,7 @@ class ProductController extends Controller
         return (new ProductResource($product))->additional([
             'success' => $success,
             'old' => $oldProduct->toArray(),
-        ])->response()->setStatusCode($success ? 200 : 500);
+        ])->response()->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
     }
 
     /**
@@ -89,6 +89,6 @@ class ProductController extends Controller
         return (new ProductResource($product))
             ->additional(['success' => $success])
             ->response()
-            ->setStatusCode($success ? 200 : 500);
+            ->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
     }
 }
