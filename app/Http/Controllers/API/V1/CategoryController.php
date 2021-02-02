@@ -18,7 +18,12 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return CategoryResource::collection(Category::withCount(['products'])->paginate(10));
+        return CategoryResource::collection(
+            Category::filter(request()->query())
+                ->withCount(['products'])
+                ->paginate(self::ITEMS_PER_PAGE)
+                ->withQueryString()
+        );
     }
 
     /**
