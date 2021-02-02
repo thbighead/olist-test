@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Models\Category;
 
 class CategoryController extends Controller
@@ -13,11 +14,11 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return CategoryResource
+     * @return AnonymousResourceCollection
      */
     public function index()
     {
-        return new CategoryResource(Category::paginate(10));
+        return CategoryResource::collection(Category::withCount(['products'])->paginate(10));
     }
 
     /**
@@ -46,6 +47,8 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
+        $category->loadCount(['products']);
+
         return new CategoryResource($category);
     }
 
@@ -58,6 +61,8 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
+        $category->loadCount(['products']);
+
         $oldCategory = clone $category;
 
         $success = $category->update($request->only($category->getFillable()));
@@ -77,6 +82,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
+        $category->loadCount(['products']);
+
         $success = (bool)$category->delete();
 
         return (new CategoryResource($category))

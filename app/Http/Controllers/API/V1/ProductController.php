@@ -7,17 +7,18 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return ProductResource
+     * @return AnonymousResourceCollection
      */
     public function index()
     {
-        return new ProductResource(Product::paginate(10));
+        return ProductResource::collection(Product::with('category')->paginate(10));
     }
 
     /**
@@ -46,6 +47,8 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
+        $product->load(['category']);
+
         return new ProductResource($product);
     }
 
@@ -58,6 +61,8 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
+        $product->load(['category']);
+
         $oldProduct = clone $product;
 
         $success = $product->update($request->only($product->getFillable()));
@@ -77,6 +82,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $product->load(['category']);
+
         $success = (bool)$product->delete();
 
         return (new ProductResource($product))
