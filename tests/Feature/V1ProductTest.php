@@ -300,22 +300,7 @@ class V1ProductTest extends TestCase
         ]);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertHeader('Content-Type', 'application/json')
-            ->assertJsonStructure([
-                'data' => [
-                    'id',
-                    'sku',
-                    'name',
-                    'description',
-                    'price',
-                    'created_at',
-                    'updated_at',
-                    'deleted_at',
-                ],
-                'success'
-            ])
-            ->assertJsonPath('success', true)
-            ->assertJsonPath('data.sku', $alreadyExistingProductSku);
+            ->assertHeader('Content-Type', 'application/json');
     }
 
     /**
