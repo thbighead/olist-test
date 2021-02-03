@@ -544,7 +544,7 @@ class V1ProductTest extends TestCase
             ])
             ->assertJsonPath('success', true);
 
-        $this->assertNotNull($response->json('data.deleted_at'));
+        $this->assertNull(Product::whereId($product->id)->first());
     }
 
     /**
