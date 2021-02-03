@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Category;
+use App\Models\Product;
 
 class CategoryObserver
 {
@@ -25,6 +26,8 @@ class CategoryObserver
      */
     public function restored(Category $category)
     {
-        $category->products->each->restore();
+        $category->products->each(function (Product $product) {
+            $product->restore();
+        });
     }
 }
