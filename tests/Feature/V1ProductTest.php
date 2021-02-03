@@ -299,7 +299,7 @@ class V1ProductTest extends TestCase
             'price' => 50
         ]);
 
-        $response->assertCreated()
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertHeader('Content-Type', 'application/json')
             ->assertJsonStructure([
                 'data' => [
