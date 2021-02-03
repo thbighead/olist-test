@@ -55,7 +55,16 @@ Just run `php artisan serve` and keep your console opened while you want to make
 
 ## Available endpoints
 
-Please, to checkout the available endpoints look at `Insomnia.json` file. It's recommended to install [Insomnia Core](https://insomnia.rest/download/) so you can import this file and check all ready to use requests there interactively.
+Please, to check out the available endpoints look at `Insomnia.json` file. It's recommended to install [Insomnia Core](https://insomnia.rest/download/) so you can import this file and check all ready to use requests there interactively.
+
+## Testing
+
+For testing this application, take a look at `.env.testing` file. It is configured to find a database named `products-api_test` in a localhost connection. Please, be sure to create it with the same collation used for your development database (utf8mb4 unicode-ci is recommended).
+
+Once everything is set just run the following command:
+```
+php artisan test
+```
 
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
