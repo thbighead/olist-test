@@ -1,3 +1,62 @@
+# Products API
+
+This project was made to a tech challenge. Here que just have some products entities that may be classified by type, which we called categories.
+
+## Installing the project
+
+### To develop
+
+After cloning the project, please, create a new `.env` file based on `.env.example` and configure the following fields accordingly to your database configurations:
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=products-api
+DB_USERNAME=root
+DB_PASSWORD=
+```
+Make sure you do have a database named as `DB_DATABASE`!
+
+After that, run the following codes in order:
+```
+composer install
+php artisan key:generate
+php artisan migrate --seed
+```
+
+### To publish
+
+After cloning the project, please, create a new `.env` file based on `.env.example` and configure the following fields accordingly to your database configurations:
+```
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://yourawesomeurl.idk.dc
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=products-api
+DB_USERNAME=root
+DB_PASSWORD=
+```
+Make sure you do have a database named as `DB_DATABASE`!
+
+After that, run the following codes in order:
+```
+composer install --no-dev
+php artisan key:generate
+php artisan migrate
+php artisan optimize
+```
+
+## Starting a local server
+
+Just run `php artisan serve` and keep your console opened while you want to make request to your API.
+
+## Available endpoints
+
+Please, to checkout the available endpoints look at `Insomnia.json` file. It's recommended to install [Insomnia Core](https://insomnia.rest/download/) so you can import this file and check all ready to use requests there interactively.
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
 <p align="center">
