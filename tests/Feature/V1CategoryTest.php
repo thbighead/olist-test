@@ -536,7 +536,7 @@ class V1CategoryTest extends TestCase
                 'success'
             ])->assertJsonPath('success', true);
 
-        $this->assertNotNull($response->json('data.deleted_at'));
+        $this->assertNull(Category::whereId($category->id)->first());
         $this->assertEquals($products_count_before, $products_count_after);
     }
 
