@@ -347,6 +347,91 @@ class V1CategoryTest extends TestCase
      * A basic request to category index route.
      *
      * @return void
+     * @throws \Exception
+     */
+    public function test_restore_endpoint_for_category_without_products()
+    {
+        $category = Category::query()
+            ->select(['categories.*'])
+            ->leftJoin('products', 'categories.id', '=', 'products.category_id')
+            ->whereNull('products.category_id')
+            ->inRandomOrder()
+            ->first();
+        $category->delete();
+        $products_count_before = Product::count();
+        $response = $this->call(Request::METHOD_PATCH, self::BASE_ENDPOINT . "/{$category->id}/restore");
+        $products_count_after = Product::count();
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+                'success'
+            ])->assertJsonPath('success', true);
+
+        $this->assertNull($response->json('data.deleted_at'));
+        $this->assertEquals($products_count_before, $products_count_after);
+    }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function test_restore_endpoint_for_category_with_products()
+    {
+        $category = Category::query()
+            ->select(['categories.*'])
+            ->join('products', 'categories.id', '=', 'products.category_id')
+            ->inRandomOrder()
+            ->first();
+        $category->delete();
+        $products_count_before = Product::count();
+        $response = $this->call(Request::METHOD_PATCH, self::BASE_ENDPOINT . "/{$category->id}/restore");
+        $products_count_after = Product::count();
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+                'success'
+            ])->assertJsonPath('success', true);
+
+        $this->assertNull($response->json('data.deleted_at'));
+        $this->assertLessThan($products_count_after, $products_count_before);
+    }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
+     */
+    public function test_restore_endpoint_when_not_found()
+    {
+        $unexisting_category_id = Category::max('id') + 1000; // probably a non-existing id
+        $response = $this->call(
+            Request::METHOD_PATCH,
+            self::BASE_ENDPOINT . "/{$unexisting_category_id}/restore"
+        );
+
+        $response->assertNotFound();
+    }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
      */
     public function test_destroy_endpoint_for_category_without_products()
     {
@@ -362,15 +447,15 @@ class V1CategoryTest extends TestCase
 
         $response->assertOk()
             ->assertJsonStructure([
-            'data' => [
-                'id',
-                'name',
-                'created_at',
-                'updated_at',
-                'deleted_at',
-            ],
-            'success'
-        ])->assertJsonPath('success', true);
+                'data' => [
+                    'id',
+                    'name',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+                'success'
+            ])->assertJsonPath('success', true);
 
         $this->assertNotNull($response->json('data.deleted_at'));
         $this->assertEquals($products_count_before, $products_count_after);
@@ -394,18 +479,19 @@ class V1CategoryTest extends TestCase
 
         $response->assertOk()
             ->assertJsonStructure([
-            'data' => [
-                'id',
-                'name',
-                'created_at',
-                'updated_at',
-                'deleted_at',
-            ],
-            'success'
-        ])->assertJsonPath('success', true);
+                'data' => [
+                    'id',
+                    'name',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+                'success'
+            ])->assertJsonPath('success', true);
 
         $this->assertNotNull($response->json('data.deleted_at'));
         $this->assertLessThan($products_count_before, $products_count_after);
+        $this->assertEquals($products_count_before, Product::withTrashed()->count());
     }
 
     /**
@@ -417,6 +503,88 @@ class V1CategoryTest extends TestCase
     {
         $unexisting_category_id = Category::max('id') + 1000; // probably a non-existing id
         $response = $this->call(Request::METHOD_DELETE, self::BASE_ENDPOINT . "/{$unexisting_category_id}");
+
+        $response->assertNotFound();
+    }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
+     */
+    public function test_force_destroy_endpoint_for_category_without_products()
+    {
+        $category = Category::query()
+            ->select(['categories.*'])
+            ->leftJoin('products', 'categories.id', '=', 'products.category_id')
+            ->whereNull('products.category_id')
+            ->inRandomOrder()
+            ->first();
+        $products_count_before = Product::count();
+        $response = $this->call(Request::METHOD_DELETE, self::BASE_ENDPOINT . "/{$category->id}/force");
+        $products_count_after = Product::count();
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+                'success'
+            ])->assertJsonPath('success', true);
+
+        $this->assertNotNull($response->json('data.deleted_at'));
+        $this->assertEquals($products_count_before, $products_count_after);
+    }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
+     */
+    public function test_force_destroy_endpoint_for_category_with_products()
+    {
+        $category = Category::query()
+            ->select(['categories.*'])
+            ->join('products', 'categories.id', '=', 'products.category_id')
+            ->inRandomOrder()
+            ->first();
+        $products_count_before = Product::count();
+        $response = $this->call(Request::METHOD_DELETE, self::BASE_ENDPOINT . "/{$category->id}/force");
+        $products_count_after = Product::count();
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+                'success'
+            ])->assertJsonPath('success', true);
+
+        $this->assertNull(Category::whereId($category->id)->first());
+        $this->assertLessThan($products_count_before, $products_count_after);
+        $this->assertEquals($products_count_after, Product::withTrashed()->count());
+    }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
+     */
+    public function test_force_destroy_endpoint_when_not_found()
+    {
+        $unexisting_category_id = Category::max('id') + 1000; // probably a non-existing id
+        $response = $this->call(
+            Request::METHOD_DELETE,
+            self::BASE_ENDPOINT . "/{$unexisting_category_id}/force"
+        );
 
         $response->assertNotFound();
     }
