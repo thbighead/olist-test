@@ -67,6 +67,18 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
+        $nothing_to_change = true;
+        $fieldsToChange = $request->only($product->getFillable());
+        foreach ($fieldsToChange as $attribute => $supposed_new_value) {
+            if ($product->getActualAttribute($attribute) !== $supposed_new_value) {
+                $nothing_to_change = false;
+                break;
+            }
+        }
+        if ($nothing_to_change) {
+            return response()->json(null, Response::HTTP_NOT_MODIFIED);
+        }
+
         $product->load(['category']);
 
         $oldProduct = clone $product;
