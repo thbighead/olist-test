@@ -118,6 +118,7 @@ class ProductController extends Controller
     {
         $destroyedProduct = Product::withTrashed()->findOrFail($id)->load(['category']);
         $success = (bool)$destroyedProduct->restore();
+        $destroyedProduct->loadCount(['category']);
 
         return (new ProductResource($destroyedProduct))
             ->additional(['success' => $success])
