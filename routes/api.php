@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
-const API_CONTROLLERS_PATH_FROM_APP_DIRECTORY = 'Http/Controllers/API';
+defined('API_CONTROLLERS_PATH_FROM_APP_DIRECTORY')
+    ?: define('API_CONTROLLERS_PATH_FROM_APP_DIRECTORY', 'Http/Controllers/API');
 
 /*
 |--------------------------------------------------------------------------
