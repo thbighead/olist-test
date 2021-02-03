@@ -26,7 +26,7 @@ class CategoryObserver
      */
     public function restored(Category $category)
     {
-        $category->products->each(function (Product $product) {
+        $category->products()->withTrashed()->get()->each(function (Product $product) {
             $product->restore();
         });
     }
