@@ -471,4 +471,110 @@ class V1ProductTest extends TestCase
 
         $response->assertNotFound();
     }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
+     * @throws \Exception
+     */
+    public function test_restore_endpoint()
+    {
+        $product = Product::query()->inRandomOrder()->first();
+        $product->delete();
+        $response = $this->call(Request::METHOD_PATCH, self::BASE_ENDPOINT . "/{$product->id}/restore");
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'sku',
+                    'name',
+                    'description',
+                    'price',
+                    'category' => [
+                        'id',
+                        'name',
+                        'created_at',
+                        'updated_at',
+                        'deleted_at',
+                    ],
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+                'success'
+            ])
+            ->assertJsonPath('success', true);
+
+        $this->assertNull($response->json('data.deleted_at'));
+    }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
+     */
+    public function test_restore_endpoint_when_not_found()
+    {
+        $unexisting_product_id = Product::max('id') + 1000; // probably a non-existing id
+        $response = $this->call(
+            Request::METHOD_PATCH,
+            self::BASE_ENDPOINT . "/{$unexisting_product_id}/restore"
+        );
+
+        $response->assertNotFound();
+    }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
+     */
+    public function test_force_destroy_endpoint()
+    {
+        $product = Product::query()->inRandomOrder()->first();
+        $response = $this->call(Request::METHOD_DELETE, self::BASE_ENDPOINT . "/{$product->id}/force");
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'sku',
+                    'name',
+                    'description',
+                    'price',
+                    'category' => [
+                        'id',
+                        'name',
+                        'created_at',
+                        'updated_at',
+                        'deleted_at',
+                    ],
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+                'success'
+            ])
+            ->assertJsonPath('success', true);
+
+        $this->assertNotNull($response->json('data.deleted_at'));
+    }
+
+    /**
+     * A basic request to category index route.
+     *
+     * @return void
+     */
+    public function test_force_destroy_endpoint_when_not_found()
+    {
+        $unexisting_product_id = Product::max('id') + 1000; // probably a non-existing id
+        $response = $this->call(
+            Request::METHOD_DELETE,
+            self::BASE_ENDPOINT . "/{$unexisting_product_id}/force"
+        );
+
+        $response->assertNotFound();
+    }
 }
