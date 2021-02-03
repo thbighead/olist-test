@@ -67,11 +67,23 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
+        $nothing_to_change = true;
+        $fieldsToChange = $request->only($category->getFillable());
+        foreach ($fieldsToChange as $attribute => $supposed_new_value) {
+            if ($category->getActualAttribute($attribute) !== $supposed_new_value) {
+                $nothing_to_change = false;
+                break;
+            }
+        }
+        if ($nothing_to_change) {
+            return response()->json(null, Response::HTTP_NOT_MODIFIED);
+        }
+
         $category->loadCount(['products']);
 
         $oldCategory = clone $category;
 
-        $success = $category->update($request->only($category->getFillable()));
+        $success = $category->update($fieldsToChange);
 
         return (new CategoryResource($category))->additional([
             'success' => $success,
