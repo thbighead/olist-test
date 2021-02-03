@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 class CategoryController extends Controller
 {
@@ -41,7 +42,7 @@ class CategoryController extends Controller
 
         return (new CategoryResource($newCategory))->additional([
             'success' => $success,
-        ])->response()->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
+        ])->response()->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -75,11 +76,11 @@ class CategoryController extends Controller
         return (new CategoryResource($category))->additional([
             'success' => $success,
             'old' => $oldCategory->toArray(),
-        ])->response()->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
+        ])->response()->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Softly remove the specified resource from storage.
      *
      * @param Category $category
      * @return \Illuminate\Http\JsonResponse|object
@@ -94,6 +95,39 @@ class CategoryController extends Controller
         return (new CategoryResource($category))
             ->additional(['success' => $success])
             ->response()
-            ->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
+            ->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse|object
+     */
+    public function restore($id)
+    {
+        $destroyedCategory = Category::withTrashed()->findOrFail($id)->loadCount(['products']);
+        $success = (bool)$destroyedCategory->restore();
+
+        return (new CategoryResource($destroyedCategory))
+            ->additional(['success' => $success])
+            ->response()
+            ->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Completely remove the specified resource from storage.
+     *
+     * @param Category $category
+     * @return \Illuminate\Http\JsonResponse|object
+     */
+    public function forceDestroy(Category $category)
+    {
+        $category->loadCount(['products']);
+
+        $success = (bool)$category->forceDelete();
+
+        return (new CategoryResource($category))
+            ->additional(['success' => $success])
+            ->response()
+            ->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

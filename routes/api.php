@@ -43,11 +43,14 @@ foreach (scandir($api_versions_controllers_path) as $api_version) { // Reading A
 
             $controller_name = substr($controller_filename, 0, -4); // removing '.php' from filename
             $controller_namespace = "\\App\\Http\\Controllers\\API\\$api_version\\$controller_name";
+            $resource_snake_cased_name = Str::snake(Str::before($controller_name, 'Controller'));
 
-            Route::apiResource(
-                Str::snake(Str::before($controller_name, 'Controller')),
-                $controller_namespace
-            )->only(get_class_methods($controller_namespace));
+            Route::apiResource($resource_snake_cased_name, $controller_namespace)
+                ->only(get_class_methods($controller_namespace));
+            Route::patch("/{$resource_snake_cased_name}/restore", "{$controller_namespace}@restore")
+                ->name("{$resource_snake_cased_name}.restore");
+            Route::delete("/{$resource_snake_cased_name}/force", "{$controller_namespace}@forceDestroy")
+                ->name("{$resource_snake_cased_name}.force_destroy");
         }
     });
 }
