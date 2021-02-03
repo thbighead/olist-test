@@ -25,7 +25,11 @@ class UpdateCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => Rule::unique('categories')->ignore($this->route('category')),
+            'name' => [
+                'string',
+                'min:2',
+                Rule::unique('categories')->ignore($this->route('category')),
+            ],
         ];
     }
 }
