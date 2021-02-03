@@ -42,7 +42,7 @@ class ProductController extends Controller
 
         return (new ProductResource($newProduct))->additional([
             'success' => $success,
-        ])->response()->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
+        ])->response()->setStatusCode($success ? Response::HTTP_CREATED : Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
