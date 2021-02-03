@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {
@@ -41,7 +42,7 @@ class ProductController extends Controller
 
         return (new ProductResource($newProduct))->additional([
             'success' => $success,
-        ])->response()->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
+        ])->response()->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -75,11 +76,11 @@ class ProductController extends Controller
         return (new ProductResource($product))->additional([
             'success' => $success,
             'old' => $oldProduct->toArray(),
-        ])->response()->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
+        ])->response()->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Softly remove the specified resource from storage.
      *
      * @param Product $product
      * @return \Illuminate\Http\JsonResponse|object
@@ -94,6 +95,39 @@ class ProductController extends Controller
         return (new ProductResource($product))
             ->additional(['success' => $success])
             ->response()
-            ->setStatusCode($success ? self::HTTP_STATUS_OK : self::HTTP_STATUS_FAIL);
+            ->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse|object
+     */
+    public function restore($id)
+    {
+        $destroyedProduct = Product::withTrashed()->findOrFail($id)->load(['category']);
+        $success = (bool)$destroyedProduct->restore();
+
+        return (new ProductResource($destroyedProduct))
+            ->additional(['success' => $success])
+            ->response()
+            ->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Completely remove the specified resource from storage.
+     *
+     * @param Product $product
+     * @return \Illuminate\Http\JsonResponse|object
+     */
+    public function forceDestroy(Product $product)
+    {
+        $product->loadCount(['category']);
+
+        $success = (bool)$product->forceDelete();
+
+        return (new ProductResource($product))
+            ->additional(['success' => $success])
+            ->response()
+            ->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }
