@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -24,7 +25,14 @@ class UpdateProductRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'category_id' => 'exists:categories,id',
+            'sku' => [
+                'string',
+                Rule::unique('products')->ignore($this->route('product')),
+            ],
+            'name' => 'string|min:2',
+            'description' => 'string',
+            'price' => 'numeric|min:0',
         ];
     }
 }

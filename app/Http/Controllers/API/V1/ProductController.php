@@ -42,7 +42,7 @@ class ProductController extends Controller
 
         return (new ProductResource($newProduct))->additional([
             'success' => $success,
-        ])->response()->setStatusCode($success ? Response::HTTP_OK : Response::HTTP_INTERNAL_SERVER_ERROR);
+        ])->response()->setStatusCode($success ? Response::HTTP_CREATED : Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -67,6 +67,18 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
+        $nothing_to_change = true;
+        $fieldsToChange = $request->only($product->getFillable());
+        foreach ($fieldsToChange as $attribute => $supposed_new_value) {
+            if ($product->getActualAttribute($attribute) !== $supposed_new_value) {
+                $nothing_to_change = false;
+                break;
+            }
+        }
+        if ($nothing_to_change) {
+            return response()->json(null, Response::HTTP_NOT_MODIFIED);
+        }
+
         $product->load(['category']);
 
         $oldProduct = clone $product;
