@@ -47,9 +47,9 @@ foreach (scandir($api_versions_controllers_path) as $api_version) { // Reading A
 
             Route::apiResource($resource_snake_cased_name, $controller_namespace)
                 ->only(get_class_methods($controller_namespace));
-            Route::patch("/{$resource_snake_cased_name}/restore", "{$controller_namespace}@restore")
+            Route::patch("/{$resource_snake_cased_name}/{{$resource_snake_cased_name}}/restore", "{$controller_namespace}@restore")
                 ->name("{$resource_snake_cased_name}.restore");
-            Route::delete("/{$resource_snake_cased_name}/force", "{$controller_namespace}@forceDestroy")
+            Route::delete("/{$resource_snake_cased_name}/{{$resource_snake_cased_name}}/force", "{$controller_namespace}@forceDestroy")
                 ->name("{$resource_snake_cased_name}.force_destroy");
         }
     });
