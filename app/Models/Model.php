@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Arr;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
@@ -19,6 +20,26 @@ abstract class Model extends EloquentModel
         parent::__construct($attributes);
         $this->filterable = $this->filterable ?? $this->getFillable();
         $this->filterable = array_combine($this->filterable, $this->filterable);
+    }
+
+    /**
+     * Returns an attribute value without triggering any accessor.
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public function getActualAttribute(string $key)
+    {
+        return Arr::get($this->attributes, $key);
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function isFilterable(string $key): bool
+    {
+        return (bool)($this->filterable[$key] ?? false);
     }
 
     /**
@@ -47,10 +68,5 @@ abstract class Model extends EloquentModel
         }
 
         return $query;
-    }
-
-    public function isFilterable(string $key): bool
-    {
-        return (bool)($this->filterable[$key] ?? false);
     }
 }
